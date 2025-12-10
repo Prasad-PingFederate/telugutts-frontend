@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telugu Text To Speech</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div class="container">
+        <h1>Telugu Text-To-Speech</h1>
+
+        <textarea id="textInput" placeholder="తెలుగు టెక్ట్స్ ఇక్కడ టైప్ చేయండి..."></textarea>
+
+        <button id="generateBtn" onclick="generateAudio()">🔊 Convert to Speech</button>
+
+        <p id="status"></p>
+
+        <audio id="audioPlayer" controls style="display:none;"></audio>
+
+        <button id="downloadBtn" style="display:none;" onclick="downloadAudio()">⬇️ Download MP3</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
