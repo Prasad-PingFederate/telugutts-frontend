@@ -14,6 +14,7 @@ async function generateAudio() {
     document.getElementById("generateBtn").disabled = true;
 
     try {
+        // Call your backend API
         const response = await fetch("/api/tts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -27,14 +28,17 @@ async function generateAudio() {
 
         const data = await response.json();
 
-        if (!data.audio) {
-            throw new Error("No audio returned from backend.");
+        // IMPORTANT: Your backend returns audio_base64, NOT audio
+        if (!data.audio_base64) {
+            throw new Error("No audio received from backend.");
         }
 
-        audioPlayer.src = "data:audio/mp3;base64," + data.audio;
+        // Set audio player source
+        audioPlayer.src = "data:audio/mp3;base64," + data.audio_base64;
         playerArea.style.display = "block";
         downloadBtn.style.display = "inline-block";
 
+        // Download button
         downloadBtn.onclick = () => {
             const a = document.createElement("a");
             a.href = audioPlayer.src;
@@ -43,13 +47,13 @@ async function generateAudio() {
         };
 
         statusEl.innerText = "Done!";
-    } catch (err) {
-        console.error("Error:", err);
-        statusEl.innerText = "Error: " + err.message;
+    } catch (error) {
+        console.error(error);
+        statusEl.innerText = "Error: " + error.message;
     } finally {
         document.getElementById("generateBtn").disabled = false;
     }
 }
 
-// ⭐ VERY IMPORTANT — Without this line the button will NOT work
+// IMPORTANT CODE — Without this the button will NOT work
 document.getElementById("generateBtn").addEventListener("click", generateAudio);
