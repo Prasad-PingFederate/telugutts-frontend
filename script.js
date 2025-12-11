@@ -30,4 +30,10 @@ async function convertTextToSpeech() {
   const downloadBtn = document.getElementById("downloadBtn");
   if (downloadBtn) downloadBtn.style.display = "inline-block";
 }
+function downloadAudio(base64Audio) {
+  const link = document.createElement("a");
+  link.href = `data:audio/mp3;base64,${base64Audio}`;
+  link.download = "tts_audio.mp3";
+  link.click();
+}
 
