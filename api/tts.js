@@ -1,3 +1,6 @@
+console.log("RUNPOD URL:", process.env.RUNPOD_ENDPOINT_URL);
+console.log("RUNPOD KEY EXISTS:", !!process.env.RUNPOD_API_KEY);
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
