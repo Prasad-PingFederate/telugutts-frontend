@@ -1,97 +1,60 @@
-// Vercel Serverless Function to proxy requests to RunPod
+// Vercel serverless function (API route)
 export default async function handler(req, res) {
-    // Only allow POST requests
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+  // Allow only POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { text } = req.body;
+
+    // Validate text
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: "No text provided" });
     }
 
-    try {
-        const { text } = req.body;
+    // --- RunPod SYNC endpoint ---
+    const RUNPOD_ENDPOINT = "https://api.runpod.ai/v2/76h1nrfetqywu1/runsync";
+    const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
 
-        if (!text || !text.trim()) {
-            return res.status(400).json({ error: 'No text provided' });
-        }
+    console.log("➡ Sending request to RunPod...");
 
-        // Your RunPod endpoint URL
-        const RUNPOD_ENDPOINT = 'https://api.runpod.ai/v2/76h1nrfetqywu1/run';
-        const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
+    const response = await fetch(RUNPOD_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${RUNPOD_API_KEY}`
+      },
+      body: JSON.stringify({
+        input: { text }
+      })
+    });
 
-        console.log('Calling RunPod endpoint...');
+    const result = await response.json();
+    console.log("⬅ RunPod Result:", result);
 
-        // Call RunPod serverless endpoint
-        const runpodResponse = await fetch(RUNPOD_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${RUNPOD_API_KEY}`
-            },
-            body: JSON.stringify({
-                input: {
-                    text: text
-                }
-            })
-        });
-
-        if (!runpodResponse.ok) {
-            const errorText = await runpodResponse.text();
-            console.error('RunPod error:', errorText);
-            return res.status(500).json({
-                error: 'RunPod API error',
-                details: errorText
-            });
-        }
-
-        const runpodData = await runpodResponse.json();
-        console.log('RunPod response:', runpodData);
-
-        const jobId = runpodData.id;
-
-        if (!jobId) {
-            return res.status(500).json({
-                error: 'No job ID received from RunPod',
-                data: runpodData
-            });
-        }
-
-        // Poll for job completion
-        const STATUS_ENDPOINT = `https://api.runpod.ai/v2/76h1nrfetqywu1/status/${jobId}`;
-        let attempts = 0;
-        const MAX_ATTEMPTS = 30;
-
-        while (attempts < MAX_ATTEMPTS) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            const statusResponse = await fetch(STATUS_ENDPOINT, {
-                headers: {
-                    'Authorization': `Bearer ${RUNPOD_API_KEY}`
-                }
-            });
-
-            const statusData = await statusResponse.json();
-            console.log(`Attempt ${attempts + 1}:`, statusData.status);
-
-            if (statusData.status === 'COMPLETED') {
-                return res.status(200).json({
-                    audio_base64: statusData.output,
-                    message: 'Audio generated successfully'
-                });
-            } else if (statusData.status === 'FAILED') {
-                return res.status(500).json({
-                    error: 'Job failed',
-                    details: statusData.error
-                });
-            }
-
-            attempts++;
-        }
-
-        return res.status(408).json({ error: 'Request timeout - job took too long' });
-
-    } catch (error) {
-        console.error('Error in API route:', error);
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: error.message
-        });
+    // --- Validate RunPod Output ---
+    if (!result.output) {
+      console.error("❌ RunPod returned no output:", result);
+      return res.status(500).json({ error: "RunPod returned no output", result });
     }
+
+    if (!result.output.audio_base64) {
+      console.error("❌ No audio returned:", result.output);
+      return res.status(500).json({ error: "Audio missing in RunPod output", output: result.output });
+    }
+
+    // SUCCESS — Send audio back to frontend
+    return res.status(200).json({
+      audio_base64: result.output.audio_base64,
+      message: "Audio generated successfully"
+    });
+
+  } catch (error) {
+    console.error("🔥 BACKEND ERROR:", error);
+    return res.status(500).json({
+      error: "Server error",
+      details: error.message
+    });
+  }
 }
