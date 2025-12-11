@@ -22,8 +22,19 @@
   <div class="card">
     <h1>Telugu Text-To-Speech</h1>
 
-    <textarea id="textInput" placeholder="టెక్కస్టు ఇక్కడ రాయండి..."></textarea>
+    <textarea id="textInput" placeholder="తెలుగు లో టెక్ట్స్ ఎంటర్ చేసి, MP3 ఆడియో రూపంలో పొందండి – ఇప్పుడే ఉచితంగా"></textarea>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
+
+
+<!-- STEP 3: AUDIO PLAYER -->
+<audio id="player" controls style="display:none; margin-top:20px; width:100%;"></audio>
+
+<!-- STEP 4: DOWNLOAD BUTTON -->
+<button id="downloadBtn" style="display:none; margin-top:10px;"
+        onclick="downloadAudio(window.generatedAudio)">
+  Download MP3
+</button>
+
 
 <!-- AUDIO PLAYER SHOULD BE RIGHT HERE -->
 <audio id="player" controls style="display:none; margin-top:20px; width:100%;"></audio>
