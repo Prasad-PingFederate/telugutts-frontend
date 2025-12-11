@@ -1,9 +1,9 @@
 console.log("SCRIPT LOADED");
 
 async function convertTextToSpeech() {
-  const text = document.getElementById("inputText").value;
   console.log("BUTTON CLICKED");
 
+  const text = document.getElementById("textInput").value;
 
   const response = await fetch("/api/tts", {
     method: "POST",
@@ -18,26 +18,23 @@ async function convertTextToSpeech() {
     return;
   }
 
-  // Convert base64 → audio playable URL
   const audioSrc = `data:audio/mp3;base64,${data.audio_base64}`;
 
-  // Play audio
   const audio = document.getElementById("player");
   audio.src = audioSrc;
   audio.style.display = "block";
   audio.play();
 
-  // Save audio for downloading later (STEP 2)
   window.generatedAudio = data.audio_base64;
 
-  // Show download button (STEP 2)
-  const downloadBtn = document.getElementById("downloadBtn");
-  if (downloadBtn) downloadBtn.style.display = "inline-block";
+  document.getElementById("downloadBtn").style.display = "inline-block";
 }
+
 function downloadAudio(base64Audio) {
   const link = document.createElement("a");
   link.href = `data:audio/mp3;base64,${base64Audio}`;
   link.download = "tts_audio.mp3";
   link.click();
 }
+
 
