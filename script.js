@@ -1,3 +1,5 @@
+console.log("SCRIPT LOADED");
+
 async function convertTextToSpeech() {
   const text = document.getElementById("inputText").value;
 
