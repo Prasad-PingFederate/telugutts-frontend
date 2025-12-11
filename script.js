@@ -18,7 +18,7 @@ async function convertToSpeech() {
   status.style.color = "#444";
 
   try {
-   const response = await fetch("https://www.telugutts.com/api/tts", {
+   const response = await fetch("/api/tts", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ text })
