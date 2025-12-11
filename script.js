@@ -1,40 +1,58 @@
-console.log("SCRIPT LOADED");
+async function convertToSpeech() {
+    const text = document.getElementById("text-input").value.trim();
+    const status = document.getElementById("status");
+    const audioPlayer = document.getElementById("audio-player");
+    const downloadBtn = document.getElementById("download-btn");
 
-async function convertTextToSpeech() {
-  console.log("BUTTON CLICKED");
+    // Reset UI
+    audioPlayer.style.display = "none";
+    downloadBtn.style.display = "none";
+    status.innerText = "";
 
-  const text = document.getElementById("textInput").value;
+    // Validation
+    if (!text) {
+        status.innerText = "⚠️ Please enter some Telugu text.";
+        status.style.color = "red";
+        return;
+    }
 
-  const response = await fetch("/api/tts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
+    status.innerText = "⏳ Generating audio, please wait...";
+    status.style.color = "#444";
 
-  const data = await response.json();
+    try {
+        const response = await fetch("/api/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+        });
 
-  if (!data.audio_base64) {
-    alert("No audio returned.");
-    return;
-  }
+        const data = await response.json();
 
-  const audioSrc = `data:audio/mp3;base64,${data.audio_base64}`;
+        if (!data.audio_base64) {
+            status.innerText = "❌ Error generating speech.";
+            status.style.color = "red";
+            return;
+        }
 
-  const audio = document.getElementById("player");
-  audio.src = audioSrc;
-  audio.style.display = "block";
-  audio.play();
+        // Convert Base64 → MP3 URL
+        const audioSrc = "data:audio/mp3;base64," + data.audio_base64;
 
-  window.generatedAudio = data.audio_base64;
+        // Show audio player
+        audioPlayer.src = audioSrc;
+        audioPlayer.style.display = "block";
+        audioPlayer.play();
 
-  document.getElementById("downloadBtn").style.display = "inline-block";
+        // Enable download button
+        downloadBtn.href = audioSrc;
+        downloadBtn.style.display = "block";
+        downloadBtn.innerText = "Download MP3";
+
+        status.innerText = "✅ Audio ready!";
+        status.style.color = "green";
+
+    } catch (err) {
+        status.innerText = "❌ Error communicating with server.";
+        status.style.color = "red";
+        console.error(err);
+    }
 }
-
-function downloadAudio(base64Audio) {
-  const link = document.createElement("a");
-  link.href = `data:audio/mp3;base64,${base64Audio}`;
-  link.download = "tts_audio.mp3";
-  link.click();
-}
-
-
