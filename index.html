@@ -23,8 +23,11 @@
     <h1>Telugu Text-To-Speech</h1>
 
     <textarea id="textInput" placeholder="టెక్కస్టు ఇక్కడ రాయండి..."></textarea>
+    <button onclick="convertTextToSpeech()">Convert to Speech</button>
 
-    <button id="generateBtn">Convert to Speech</button>
+<!-- AUDIO PLAYER SHOULD BE RIGHT HERE -->
+<audio id="player" controls style="display:none; margin-top:20px; width:100%;"></audio>
+
     <p id="status"></p>
 
     <div id="playerArea" style="display:none">
