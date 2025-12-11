@@ -18,11 +18,12 @@ async function convertToSpeech() {
   status.style.color = "#444";
 
   try {
-    const response = await fetch("/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
+   const response = await fetch("https://www.telugutts.com/api/tts", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ text })
+});
+
 
     const data = await response.json();
     console.log("Frontend got:", data);
