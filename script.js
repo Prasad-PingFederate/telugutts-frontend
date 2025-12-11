@@ -2,6 +2,8 @@ console.log("SCRIPT LOADED");
 
 async function convertTextToSpeech() {
   const text = document.getElementById("inputText").value;
+  console.log("BUTTON CLICKED");
+
 
   const response = await fetch("/api/tts", {
     method: "POST",
