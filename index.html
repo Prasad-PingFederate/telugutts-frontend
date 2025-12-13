@@ -15,136 +15,165 @@
 </head>
 
 <body>
-    <div class="background-gradient"></div>
+    <div class="app-wrapper">
+        <!-- Ambient Background Elements -->
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="grid-pattern"></div>
 
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="20" r="20" fill="url(#gradient)" />
-                    <path d="M15 14L25 20L15 26V14Z" fill="white" />
-                    <defs>
-                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#667eea" />
-                            <stop offset="100%" stop-color="#764ba2" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <h1>Telugu TTS</h1>
-            </div>
-            <p class="subtitle">Transform Telugu text into natural-sounding speech</p>
-        </header>
+        <div class="container">
+            <header class="header">
+                <div class="badge-pill">✨ AI-Powered V2.0</div>
+                <div class="logo-group">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="animate-pulse">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-5.5l6-4.5-6-4.5v9z"
+                                fill="url(#logoGradient)" />
+                            <defs>
+                                <linearGradient id="logoGradient" x1="2" y1="2" x2="22" y2="22">
+                                    <stop offset="0%" stop-color="#38bdf8" />
+                                    <stop offset="100%" stop-color="#818cf8" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h1>Telugu<span class="text-gradient">Voice</span></h1>
+                </div>
+                <p class="subtitle">Experience the next generation of neural speech synthesis.</p>
+            </header>
 
-        <main class="main-content">
-            <div class="card">
-                <div class="input-section">
-                    <div class="text-area-wrapper">
-                        <div class="input-top-row">
-                            <span class="option-badge">Option 1: Type / Paste</span>
-                            <div class="transliteration-toggle">
-                                <label class="switch">
-                                    <input type="checkbox" id="transliterateToggle">
-                                    <span class="slider round"></span>
+            <main class="main-content">
+                <div class="card">
+                    <div class="input-section">
+                        <div class="text-area-wrapper">
+                            <div class="input-header-grid">
+                                <!-- Option 1 -->
+                                <div class="control-item">
+                                    <span class="option-badge">Option 1</span>
+                                    <span class="control-label">Paste Telugu Text</span>
+                                </div>
+
+                                <!-- Option 2 -->
+                                <div class="control-item">
+                                    <div class="badge-row">
+                                        <span class="option-badge option-2-badge">Option 2</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="transliterateToggle">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="control-info">
+                                        <span class="info-title">Eng → Telugu</span>
+                                        <span class="info-sub">Type "nenu" → "నేను"</span>
+                                    </div>
+                                </div>
+
+                                <!-- Option 3 -->
+                                <div class="control-item">
+                                    <span class="option-badge option-3-badge">Option 3</span>
+                                    <button id="dictateBtn" class="action-btn" type="button" title="Start Dictation">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                                        </svg>
+                                        <span id="micLabel">Use Mic</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <textarea id="teluguText" class="textarea main-input"
+                                placeholder="Start typing, pasting, or speaking here..." maxlength="5000"
+                                rows="8"></textarea>
+
+                            <div class="input-bottom-bar">
+                                <div class="spacer"></div> <!-- Spacer to push count to right -->
+                                <span class="char-count" id="charCount">0 / 5000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voice-selection-bar">
+                        <div class="voice-group">
+                            <label class="voice-label-text">Select Voice:</label>
+                            <div class="voice-pills">
+                                <label class="voice-pill selected" id="lblFemale">
+                                    <input type="radio" name="voice" value="female" checked
+                                        onchange="updateVoiceSelection(this)">
+                                    <span class="pill-icon">👩</span>
+                                    <span class="pill-text">Female (Premium)</span>
                                 </label>
-                                <span class="toggle-label">English -> Telugu Typing</span>
+                                <label class="voice-pill" id="lblMale">
+                                    <input type="radio" name="voice" value="male" onchange="updateVoiceSelection(this)">
+                                    <span class="pill-icon">👨</span>
+                                    <span class="pill-text">Male (Standard)</span>
+                                </label>
                             </div>
                         </div>
-                        <textarea id="teluguText" class="textarea main-input"
-                            placeholder="Type or paste your Telugu text here..." maxlength="5000" rows="10"></textarea>
-
-                        <div class="input-bottom-bar">
-                            <div class="dictate-group">
-                                <span class="option-badge small">Option 2:</span>
-                                <button id="dictateBtn" class="icon-btn" type="button" title="Start Dictation">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                                        <line x1="12" y1="19" x2="12" y2="23" />
-                                        <line x1="8" y1="23" x2="16" y2="23" />
-                                    </svg>
-                                    <span>Use Mic</span>
-                                </button>
-                            </div>
-                            <span class="char-count" id="charCount">0 / 5000</span>
-                        </div>
                     </div>
-                </div>
 
-                <div class="voice-selection-bar">
-                    <div class="voice-group">
-                        <label class="voice-label-text">Select Voice:</label>
-                        <div class="voice-pills">
-                            <label class="voice-pill selected" id="lblFemale">
-                                <input type="radio" name="voice" value="female" checked
-                                    onchange="updateVoiceSelection(this)">
-                                <span class="pill-icon">👩</span>
-                                <span class="pill-text">Female (Premium)</span>
-                            </label>
-                            <label class="voice-pill" id="lblMale">
-                                <input type="radio" name="voice" value="male" onchange="updateVoiceSelection(this)">
-                                <span class="pill-icon">👨</span>
-                                <span class="pill-text">Male (Standard)</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="generateBtn" class="generate-btn">
-                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 4L14 10L6 16V4Z" fill="currentColor" />
-                    </svg>
-                    <span class="btn-text">Generate Speech</span>
-                    <div class="btn-loader"></div>
-                </button>
-
-                <div id="statusMessage" class="status-message"></div>
-
-                <div id="audioPlayer" class="audio-player" style="display: none;">
-                    <div class="audio-header">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3V21M9 6V18M15 6V18M6 9V15M18 9V15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
+                    <button id="generateBtn" class="generate-btn">
+                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 4L14 10L6 16V4Z" fill="currentColor" />
                         </svg>
-                        <span>Your Audio is Ready</span>
-                    </div>
-                    <audio id="audio" controls></audio>
-                    <button id="downloadBtn" class="download-btn">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Download Audio
+                        <span class="btn-text">Generate Speech</span>
+                        <div class="btn-loader"></div>
                     </button>
-                </div>
-            </div>
 
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>High Quality</h3>
-                    <p>Natural-sounding Telugu voice synthesis</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Fast Processing</h3>
-                    <p>Generate audio in seconds</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure</h3>
-                    <p>Your text is processed securely</p>
-                </div>
-            </div>
-        </main>
+                    <div id="statusMessage" class="status-message"></div>
 
-        <footer class="footer">
-            <p>Powered by AI • Made with ❤️ for Telugu speakers</p>
-        </footer>
-    </div>
+                    <div id="audioPlayer" class="audio-player" style="display: none;">
+                        <div class="audio-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3V21M9 6V18M15 6V18M6 9V15M18 9V15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Your Audio is Ready</span>
+                        </div>
+                        <audio id="audio" controls></audio>
+                        <button id="downloadBtn" class="download-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Download Audio
+                        </button>
+                    </div>
+                </div>
 
-    <script src="script.js?v=final"></script>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>High Quality</h3>
+                        <p>Natural-sounding Telugu voice synthesis</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast Processing</h3>
+                        <p>Generate audio in seconds</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure</h3>
+                        <p>Your text is processed securely</p>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>© 2025 TeluguVoice AI • Crafted for Excellence</p>
+            </footer>
+        </div> <!-- End container -->
+    </div> <!-- End app-wrapper -->
+
+    <script src="script.js?v=premium"></script>
 </body>
 
 </html>
