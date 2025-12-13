@@ -1,0 +1,16 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/tts",
+            "destination": "/api/tts.js"
+        },
+        {
+            "source": "/api/male",
+            "destination": "/api/male.py"
+        },
+        {
+            "source": "/api/transliterate",
+            "destination": "/api/transliterate.js"
+        }
+    ]
+}
