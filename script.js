@@ -18,6 +18,7 @@ teluguText.addEventListener('input', () => {
 
 // Transliteration Logic
 teluguText.addEventListener('keydown', async (e) => {
+    // Check if Toggle is checked (Native logic)
     if (!transliterateToggle || !transliterateToggle.checked) return;
 
     // Trigger on Space or Enter
@@ -209,25 +210,35 @@ downloadBtn.addEventListener('click', () => {
 
 // Dictation Logic (Speech to Text)
 const dictateBtn = document.getElementById('dictateBtn');
+const micLabel = document.getElementById('micLabel');
 let recognition = null;
 let isRecording = false;
 
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+function initSpeech() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        console.warn('Speech API not supported');
+        // Do not hide button, but make it alert user on click
+        return;
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     recognition.lang = 'te-IN'; // Telugu India
-    recognition.continuous = true; // Continuous listening
-    recognition.interimResults = true; // Show results in real-time
+    recognition.continuous = true;
+    recognition.interimResults = true;
 
     let initialText = '';
 
     recognition.onstart = () => {
         isRecording = true;
         initialText = teluguText.value;
-        if (initialText.length > 0 && !initialText.endsWith(' ')) initialText += ' ';
+        // Smart spacing
+        if (initialText.length > 0 && !/\s$/.test(initialText)) {
+            initialText += ' ';
+        }
 
         dictateBtn.classList.add('recording');
-        dictateBtn.querySelector('span').textContent = 'Listening (Click to Stop)...';
+        if (micLabel) micLabel.textContent = 'Listening... Click to Stop';
         showStatus('🎙️ Listening... Speak freely in Telugu', 'loading');
     };
 
@@ -248,68 +259,73 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         }
 
         teluguText.value = initialText + interim;
-
-        // Trigger input event to update char count
         teluguText.dispatchEvent(new Event('input'));
     };
 
     recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
         if (event.error === 'not-allowed') {
-            showStatus('❌ Microphone access denied. Please allow permission.', 'error');
+            showStatus('❌ Microphone access denied.', 'error');
+            stopRecording();
+        } else if (event.error === 'no-speech') {
+            // checking silence is fine, don't error out
         } else {
-            // Ignore no-speech errors in continuous mode
-            if (event.error !== 'no-speech') {
-                showStatus('❌ Error hearing speech. Try again.', 'error');
-            }
+            showStatus('❌ Error: ' + event.error, 'error');
+            stopRecording();
         }
     };
 
     recognition.onend = () => {
-        // Mobile device fix: If we are still "recording" (user didn't click stop),
-        // restart the recognition engine.
         if (isRecording) {
-            console.log('Recognition ended but isRecording is true. Restarting...');
+            // Attempt restart if supposedly still recording
             try {
                 recognition.start();
             } catch (e) {
-                console.log('Restart failed:', e);
-                stopRecording(); // detailed error or hard stop
+                stopRecording();
             }
         } else {
             stopRecording();
-            if (!statusMessage.textContent.includes('Error')) {
-                setTimeout(hideStatus, 2000);
-            }
         }
     };
-} else {
-    dictateBtn.style.display = 'none'; // Hide if not supported
-    console.log('Web Speech API not supported in this browser.');
 }
 
 function stopRecording() {
-    // Only stop if we are actually recording
-    if (isRecording) {
-        isRecording = false;
-        if (recognition) recognition.stop();
-        dictateBtn.classList.remove('recording');
-        dictateBtn.querySelector('span').textContent = 'Dictate (Speak in Telugu)';
+    isRecording = false;
+    if (recognition) {
+        try { recognition.stop(); } catch (e) { }
+    }
+    dictateBtn.classList.remove('recording');
+    if (micLabel) micLabel.textContent = 'Use Mic';
+    if (statusMessage.className.includes('loading')) {
         showStatus('✅ Dictation stopped.', 'success');
         setTimeout(hideStatus, 2000);
     }
 }
 
+// Initialize
+initSpeech();
+
 dictateBtn.addEventListener('click', () => {
     if (!recognition) {
-        showStatus('❌ Your browser does not support Speech Recognition. Try Chrome.', 'error');
+        alert('Your browser does not support Speech Recognition. Please use Google Chrome or Edge.');
         return;
     }
 
     if (isRecording) {
         stopRecording();
     } else {
-        recognition.start();
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error('Start error:', e);
+            if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                showStatus('❌ Mic access denied. Check settings.', 'error');
+            } else {
+                // Try hard reset
+                isRecording = false;
+                stopRecording();
+            }
+        }
     }
 });
 
