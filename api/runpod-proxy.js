@@ -1,7 +1,6 @@
 
 export const config = {
     runtime: 'edge',
-    maxDuration: 300, // 5 minutes max
 };
 
 export default async function handler(request) {
@@ -11,76 +10,72 @@ export default async function handler(request) {
 
     try {
         const body = await request.json();
-        const text = body.text || "";
+        const { text, jobId } = body;
 
-        // Your NEW GPU Serverless Endpoint ID
+        // Your RunPod Endpoint Config
         const ENDPOINT_ID = "qigr3nvzjfchib";
         const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
 
-        console.log(`Sending job to RunPod GPU Serverless: ${ENDPOINT_ID}`);
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${RUNPOD_API_KEY}`
+        };
 
-        // Step 1: Submit job asynchronously (no timeout)
-        const submitResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/run`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${RUNPOD_API_KEY}`
-            },
-            body: JSON.stringify({
-                input: {
-                    text: text
-                }
-            })
-        });
-
-        if (!submitResponse.ok) {
-            const errText = await submitResponse.text();
-            throw new Error(`RunPod Submit Error ${submitResponse.status}: ${errText}`);
-        }
-
-        const submitResult = await submitResponse.json();
-        const jobId = submitResult.id;
-
-        console.log(`Job submitted: ${jobId}, polling for result...`);
-
-        // Step 2: Poll for result (max 4 minutes)
-        const maxAttempts = 120; // 120 * 2 seconds = 4 minutes
-        let attempts = 0;
-
-        while (attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-
+        // --- MODE 1: CHECK STATUS (if jobId is provided) ---
+        if (jobId) {
             const statusResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/status/${jobId}`, {
-                headers: {
-                    'Authorization': `Bearer ${RUNPOD_API_KEY}`
-                }
+                method: 'GET',
+                headers: headers
             });
 
             if (!statusResponse.ok) {
-                throw new Error(`Status check failed: ${statusResponse.status}`);
+                const errText = await statusResponse.text();
+                throw new Error = {`RunPod Status Error ${statusResponse.status}: ${errText}`);
             }
 
             const statusResult = await statusResponse.json();
-            console.log(`Job ${jobId} status: ${statusResult.status}`);
 
-            if (statusResult.status === 'COMPLETED') {
-                return new Response(JSON.stringify(statusResult.output), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            } else if (statusResult.status === 'FAILED') {
-                throw new Error(`Job failed: ${JSON.stringify(statusResult.error)}`);
-            }
-
-            attempts++;
+            // Normalize response for frontend
+            return new Response(JSON.stringify({
+                status: statusResult.status, // IN_QUEUE, IN_PROGRESS, COMPLETED, FAILED
+                output: statusResult.output, // The audio data if completed
+                error: statusResult.error
+            }), { status: 200 });
         }
 
-        throw new Error('Job timed out after 4 minutes');
+        // --- MODE 2: SUBMIT JOB (if text is provided) ---
+        if (text) {
+            console.log(`Submitting new job to RunPod GPU: ${ENDPOINT_ID}`);
+
+            const submitResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/run`, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    input: {
+                        text: text
+                    }
+                })
+            });
+
+            if (!submitResponse.ok) {
+                const errText = await submitResponse.text();
+                throw new Error = {`RunPod Submit Error ${submitResponse.status}: ${errText}`);
+            }
+
+            const submitResult = await submitResponse.json();
+
+            return new Response(JSON.stringify({
+                status: 'SUBMITTED',
+                jobId: submitResult.id
+            }), { status: 200 });
+        }
+
+        return new Response(JSON.stringify({ error: 'Invalid request. Provide "text" to generate or "jobId" to check status.' }), { status: 400 });
 
     } catch (error) {
-        console.error('RunPod Serverless Proxy Error:', error);
+        console.error('RunPod Proxy Error:', error);
         return new Response(JSON.stringify({
-            error: 'Serverless Generation Failed',
+            error: 'Serverless Operation Failed',
             details: error.message
         }), { status: 500 });
     }

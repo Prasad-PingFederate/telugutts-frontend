@@ -99,20 +99,17 @@ generateBtn.addEventListener('click', async () => {
     const text = teluguText.value.trim();
     // Get selected voice
     const selectedVoice = document.querySelector('input[name="voice"]:checked').value;
+    let apiEndpoint = '/api/female'; // Default
 
-    // Default endpoint
+    // Endpoint Selection
     if (selectedVoice === 'azure_mohan' || selectedVoice === 'male') {
         apiEndpoint = '/api/male';
     } else if (selectedVoice === 'openai') {
         apiEndpoint = '/api/aws-polly';
     } else if (selectedVoice === 'ultimate') {
-        apiEndpoint = '/api/ultimate';
+        apiEndpoint = '/api/ultimate'; // Uses runpod-proxy.js
     } else if (selectedVoice === 'indic_trans') {
-        // We will handle translation first, then use Male voice
         apiEndpoint = '/api/male';
-    } else {
-        // Default to Female (Shruti) via Edge TTS
-        apiEndpoint = '/api/female';
     }
 
     // Validation
@@ -131,110 +128,143 @@ generateBtn.addEventListener('click', async () => {
 
     try {
         let textToSpeak = text;
+        let audioData = null;
 
-        // NEW: Handle Neural Translation
+        // --- SPECIAL CASE: AI TRANSLATION ---
         if (selectedVoice === 'indic_trans') {
             showStatus('🧠 AI Neural Translation in progress (IndicTrans2)...', 'loading');
-
             const transResponse = await fetch('/api/indic-proxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text })
             });
-
             const transData = await transResponse.json();
-
             if (transData.translated_text) {
                 textToSpeak = transData.translated_text;
-                // Update UI to show translation
                 teluguText.value = textToSpeak;
                 showStatus('✅ Translation Complete! Generating Audio...', 'loading');
-                // Give user a moment to see it
                 await new Promise(r => setTimeout(r, 500));
             } else {
                 throw new Error('Translation failed: ' + (transData.error || 'Unknown error'));
             }
-        } else if (selectedVoice === 'ultimate') {
-            showStatus('🚀 Cloning Voice via RunPod Ultimate Engine...', 'loading');
+        }
+
+        // --- SPECIAL CASE: ULTIMATE VOICE (ASYNC POLLING) ---
+        if (selectedVoice === 'ultimate') {
+            showStatus('🚀 Initializing RunPod Neural Engine (Cold Start may take 60s)...', 'loading');
+
+            // 1. Submit Job
+            const submitResponse = await fetch('/api/ultimate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: textToSpeak })
+            });
+
+            if (!submitResponse.ok) throw new Error('Failed to submit job to Neural Engine');
+
+            const submitData = await submitResponse.json();
+            const jobId = submitData.jobId;
+
+            if (!jobId) throw new Error('No Job ID returned from Neural Engine');
+
+            // 2. Poll for Completion
+            let attempts = 0;
+            const maxAttempts = 60; // 2 minutes max
+            let completed = false;
+
+            while (attempts < maxAttempts && !completed) {
+                attempts++;
+                // Wait 2 seconds between checks
+                await new Promise(r => setTimeout(r, 2000));
+
+                const statusResponse = await fetch('/api/ultimate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobId: jobId })
+                });
+
+                if (!statusResponse.ok) continue; // Retry on transient network error
+
+                const statusData = await statusResponse.json();
+
+                if (statusData.status === 'COMPLETED') {
+                    completed = true;
+                    if (statusData.output && statusData.output.audio_base64) {
+                        audioData = statusData.output.audio_base64;
+                    } else {
+                        throw new Error('Job completed but returned no audio data');
+                    }
+                } else if (statusData.status === 'FAILED') {
+                    throw new Error('Neural Generation Failed: ' + JSON.stringify(statusData.error));
+                } else {
+                    // Still running
+                    showStatus(`🚀 Generating... (${attempts * 2}s elapsed) - Please wait`, 'loading');
+                }
+            }
+
+            if (!completed) throw new Error('Generation timed out. Please try again.');
+
         } else {
-            showStatus(`🔄 Generating audio... This may take a few seconds`, 'loading');
+            // --- STANDARD VOICES (SYNC) ---
+            showStatus(`🔄 Generating audio...`, 'loading');
+
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: textToSpeak }),
+            });
+
+            // Handle non-JSON responses
+            const contentType = response.headers.get("content-type");
+            let data;
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const textContent = await response.text();
+                throw new Error(`Server Error (${response.status}): ${textContent.substring(0, 100)}`);
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate speech');
+            }
+
+            audioData = data.audio_base64;
         }
 
-        // Call the API
-        const response = await fetch(apiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ text: textToSpeak }),
-        });
+        // --- PLAY AUDIO ---
+        if (!audioData) throw new Error('No audio data received');
 
-        // 1. Check if the response is actually JSON and OK
-        const contentType = response.headers.get("content-type");
-        let data;
-
-        if (contentType && contentType.includes("application/json")) {
-            data = await response.json();
-        } else {
-            const textContent = await response.text();
-            throw new Error(`Server returned non-JSON response (${response.status}): ${textContent.substring(0, 100)}...`);
-        }
-
-        if (!response.ok) {
-            const errorMessage = data.details
-                ? `${data.error}: ${data.details}`
-                : (data.error || 'Failed to generate speech');
-            throw new Error(errorMessage);
-        }
-
-        // Check if we got audio data
-        if (!data.audio_base64) {
-            throw new Error('No audio data received');
-        }
-
-        // Convert base64 to blob
-        // Create Blob from base64
-        let base64String = data.audio_base64;
-
-        // Fix: Clean the base64 string
-        if (base64String.includes(',')) {
-            base64String = base64String.split(',')[1];
-        }
+        // Clean base64
+        let base64String = audioData;
+        if (base64String.includes(',')) base64String = base64String.split(',')[1];
         base64String = base64String.replace(/\s/g, '');
 
+        // Decode and Play
         try {
-            const audioData = atob(base64String);
-            const audioArray = new Uint8Array(audioData.length);
-            for (let i = 0; i < audioData.length; i++) {
-                audioArray[i] = audioData.charCodeAt(i);
-            }
-            currentAudioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+            const raw = atob(base64String);
+            const rawLength = raw.length;
+            const array = new Uint8Array(new ArrayBuffer(rawLength));
+            for (let i = 0; i < rawLength; i++) array[i] = raw.charCodeAt(i);
+
+            currentAudioBlob = new Blob([array], { type: 'audio/mpeg' });
         } catch (e) {
-            console.error('Base64 error:', e);
-            throw new Error('Failed to decode audio data from server.');
+            throw new Error('Failed to decode audio data.');
         }
 
-
-        // Create URL and play
         const audioUrl = URL.createObjectURL(currentAudioBlob);
         audio.src = audioUrl;
 
-        // Show success
-        showStatus('✅ ' + (data.message || 'Audio generated successfully!'), 'success');
+        showStatus('✅ Audio generated successfully!', 'success');
         audioPlayer.style.display = 'block';
 
-        // Auto-play the audio
         setTimeout(() => {
-            audio.play().catch(err => {
-                console.log('Auto-play prevented:', err);
-            });
+            audio.play().catch(e => console.log('Auto-play blocked'));
         }, 300);
 
     } catch (error) {
         console.error('Error:', error);
         showStatus(`❌ Error: ${error.message}`, 'error');
     } finally {
-        // Reset button state
         generateBtn.classList.remove('loading');
         generateBtn.disabled = false;
     }
