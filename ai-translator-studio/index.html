@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal AI Translation Studio | English to Telugu, Kannada, Hindi TTS</title>
+    <meta name="description"
+        content="Professional multilingual AI translation studio. Convert English to Telugu, Kannada, Hindi, and Malayalam with natural AI voices. Professional-grade Telugu translation with integrated text-to-speech, MP3 download, and high-fidelity Mohan and Shruti voices. Best free neural translation for Indian languages.">
+    <meta name="keywords"
+        content="English to Telugu translation, English to Kannada translation, English to Hindi translation, Telugu text to speech, Kannada TTS, Hindi voice generator, AI translator for Indian languages, Professional Telugu translator, Mohan voice Telugu, Shruti voice Telugu, translate English to Telugu with audio, free neural translation, Indian language TTS MP3 download">
+
+    <!-- SEO Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Universal AI Translation Studio",
+      "operatingSystem": "Web",
+      "applicationCategory": "TranslationApplication",
+      "description": "Enterprise-level English to Telugu, Kannada, and Hindi neural translation with high-fidelity Text-to-Speech integration.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Kannada:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="voice-controls.css">
+    <link rel="stylesheet" href="voice-preview.css">
+    <link rel="stylesheet" href="spacing-fix.css">
+    <link rel="stylesheet" href="proven-layout.css">
+</head>
+
+<body class="dark-theme">
+    <div id="app">
+        <header class="studio-header">
+            <div class="logo">
+                <span class="neon-text">AI</span> <span class="white-text">UNIVERSAL TRANS</span>
+            </div>
+            <nav>
+                <a href="../index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            </nav>
+        </header>
+
+        <main class="translator-container">
+            <div class="glass-card">
+                <div class="selector-bar">
+                    <div class="lang-selector">
+                        <label>FROM</label>
+                        <select id="source-lang-select">
+                            <option value="auto">Auto-Detect</option>
+                            <option value="en" selected>English</option>
+                            <option value="te">Telugu (తెలుగు)</option>
+                            <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                            <option value="hi">Hindi (हिन्दी)</option>
+                            <option value="ml">Malayalam (മലയാളം)</option>
+                            <option value="ta">Tamil (தமிழ்)</option>
+                        </select>
+                    </div>
+
+                    <div class="swap-btn-container">
+                        <button id="swap-langs" class="swap-btn" title="Swap Languages">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+
+                    <div class="lang-selector">
+                        <label>TO</label>
+                        <select id="target-lang-select">
+                            <option value="te" selected>Telugu (తెలుగు)</option>
+                            <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                            <option value="hi">Hindi (हिन्दी)</option>
+                            <option value="ml">Malayalam (മലയാളം)</option>
+                            <option value="en">English</option>
+                            <option value="ta">Tamil (தமிழ்)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="translate-grid">
+                    <div class="input-pane">
+                        <div class="pane-header">
+                            <span class="pane-label"><i class="fas fa-pen-nib"></i> Source Text</span>
+                            <span class="char-count" id="char-count">0 / 5000</span>
+                        </div>
+                        <textarea id="source-input" placeholder="Enter text to translate..."></textarea>
+                        <div class="pane-footer">
+                            <button id="clear-btn" class="btn-icon" title="Clear"><i
+                                    class="fas fa-trash-alt"></i></button>
+                            <button id="paste-btn" class="btn-icon" title="Paste"><i class="fas fa-paste"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="action-pane">
+                        <button id="translate-btn" class="btn-translate-main">
+                            <span class="btn-text">TRANSLATE</span>
+                            <div class="loader hide" id="main-loader">
+                                <div class="spinner-mini"></div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="output-pane">
+                        <div class="pane-header">
+                            <span class="pane-label"><i class="fas fa-magic"></i> Refined Translation</span>
+                        </div>
+                        <div class="output-wrapper">
+                            <textarea id="target-output" placeholder="AI Refined translation will appear here..."
+                                readonly></textarea>
+                        </div>
+                        <div class="pane-footer">
+                            <button id="copy-btn" class="btn-action" title="Copy Translation"><i
+                                    class="fas fa-copy"></i> Copy</button>
+
+                            <!-- Integrated TTS Section -->
+                            <div id="tts-controls" class="tts-section hide">
+                                <div class="tts-instruction" id="tts-hint">Click here to generate MP3 <span>👇</span>
+                                </div>
+                                <span class="tts-label">Voice:</span>
+                                <div class="voice-pills-mini" id="voice-options-container">
+                                    <!-- Dynamic voice pills based on target language -->
+                                </div>
+
+                                <!-- Advanced Voice Controls -->
+                                <div class="voice-controls-advanced" id="voice-controls">
+                                    <div class="control-item-mini">
+                                        <label>Speed</label>
+                                        <input type="range" id="voice-speed" min="0.5" max="2" step="0.1" value="1.0">
+                                        <span id="speed-value">1.0x</span>
+                                    </div>
+                                    <div class="control-item-mini">
+                                        <label>Pitch</label>
+                                        <select id="voice-pitch">
+                                            <option value="0">Normal</option>
+                                            <option value="+5">Higher (+5Hz)</option>
+                                            <option value="-5">Lower (-5Hz)</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-item-mini">
+                                        <label>Style</label>
+                                        <select id="voice-style">
+                                            <option value="general">General</option>
+                                            <option value="newscast">News</option>
+                                            <option value="friendly">Friendly</option>
+                                            <option value="calm">Calm</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button id="speak-btn" class="btn-speak" title="Listen & Generate MP3">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <p id="tts-loading-msg" class="tts-loading-msg hide">Waking up AI Processor... First run
+                                    may take up to 60s ⏳</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="audio-player-zone" class="audio-zone hide">
+                    <div class="player-wrapper">
+                        <audio id="audio-player" controls></audio>
+                        <a id="download-link" class="btn-dl-mp3"><i class="fas fa-download"></i> MP3</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Removed duplicate features section -->
+
+            <!-- Voice Preview Section -->
+            <section class="voice-preview-zone">
+                <h2>🎙️ Preview Premium Voices</h2>
+                <p>Hear our studio-quality voices before you translate. Click any voice to hear a sample.</p>
+                <div class="voice-preview-grid">
+                    <div class="preview-card" data-voice="te-IN-MohanNeural"
+                        data-text="నమస్తే, నేను మోహన్. తెలుగు టెక్స్ట్ టు స్పీచ్ ను పరీక్షించండి.">
+                        <div class="preview-icon">👨</div>
+                        <h3>Mohan</h3>
+                        <span class="preview-lang">Telugu Male</span>
+                        <button class="preview-btn"><i class="fas fa-play"></i> Preview</button>
+                    </div>
+                    <div class="preview-card" data-voice="te-IN-ShrutiNeural"
+                        data-text="హలో, నేను శృతి. మీ మాతృభాషలో నేటివ్ వాయిస్ అనుభవించండి.">
+                        <div class="preview-icon">👩</div>
+                        <h3>Shruti</h3>
+                        <span class="preview-lang">Telugu Female</span>
+                        <button class="preview-btn"><i class="fas fa-play"></i> Preview</button>
+                    </div>
+                    <div class="preview-card" data-voice="en-US-AndrewMultilingualNeural"
+                        data-text="Hello, I'm Andrew. Experience premium English neural voice with natural intonation.">
+                        <div class="preview-icon">👨</div>
+                        <h3>Andrew</h3>
+                        <span class="preview-lang">English Premium Male</span>
+                        <button class="preview-btn"><i class="fas fa-play"></i> Preview</button>
+                    </div>
+                    <div class="preview-card" data-voice="en-US-AriaNeural"
+                        data-text="Hi, I'm Aria. I bring warmth and clarity to every word with advanced AI technology.">
+                        <div class="preview-icon">👩</div>
+                        <h3>Aria</h3>
+                        <span class="preview-lang">English Premium Female</span>
+                        <button class="preview-btn"><i class="fas fa-play"></i> Preview</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEO Rich Content Section -->
+            <section class="seo-content-zone hide-visually">
+                <h1>Leading English to Telugu AI Translation & TTS Studio</h1>
+                <p>Convert your English documents, stories, and scripts into natural Telugu speech using our advanced
+                    neural engine. Our platform provides the best English to Telugu translation with correct grammar,
+                    native flow, and professional voice generation.</p>
+                <h2>Free Telugu Text to Speech - Mohan & Shruti Voices</h2>
+                <p>Listen to your translations with life-like Telugu AI voices. Choose between Mohan (Male) and Shruti
+                    (Female) for high-quality audio narration. Perfect for content creators, students, and
+                    professionals.</p>
+                <h3>How to translate English to Telugu with Audio?</h3>
+                <p>1. Select English in the FROM dropdown. 2. Select Telugu in the TO dropdown. 3. Enter your text and
+                    click Translate. 4. Choose a voice like Mohan and click the speak icon to generate your MP3 audio
+                    file.</p>
+                <h2>English, Kannada and Hindi AI Voice Support</h2>
+                <p>We provide high-quality English text-to-speech with Christopher and Jenny voices, alongside Kannada
+                    and Hindi neural support. This allows you to translate from Telugu, Kannada, or Hindi back to
+                    English and hear the result in a natural accent, making this the most comprehensive Indian language
+                    translation and TTS studio on the web.</p>
+            </section>
+            <!-- Studio Features Grid -->
+            <section class="studio-features">
+                <div class="feature">
+                    <h3>🧠 AI Neural Engine</h3>
+                    <p>State-of-the-art Azure & OpenAI models for human-like intonation.</p>
+                </div>
+                <div class="feature">
+                    <h3>👨‍🏫 Professor Refinement</h3>
+                    <p>Context-aware grammar corrections for Telugu, Kannada, Hindi, Tamil, Malayalam, and English.</p>
+                </div>
+                <div class="feature">
+                    <h3>🌍 Universal Translation</h3>
+                    <p>Seamlessly bridge English with 5+ Indian languages instantly.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="studio-footer">
+            <p>&copy; 2026 TeluguTTS.com | Universal AI Voice & Translation Studio</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

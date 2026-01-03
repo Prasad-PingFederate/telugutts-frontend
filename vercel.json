@@ -1,0 +1,44 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/tts",
+            "destination": "/api/tts.js"
+        },
+        {
+            "source": "/api/male",
+            "destination": "/api/male.py"
+        },
+        {
+            "source": "/api/transliterate",
+            "destination": "/api/transliterate.js"
+        },
+        {
+            "source": "/api/openai-tts",
+            "destination": "/api/openai-tts.js"
+        },
+        {
+            "source": "/api/aws-polly",
+            "destination": "/api/aws-polly.js"
+        },
+        {
+            "source": "/api/female",
+            "destination": "/api/female.py"
+        },
+        {
+            "source": "/api/translate",
+            "destination": "/api/translate.py"
+        },
+        {
+            "source": "/api/voice",
+            "destination": "/api/voice.py"
+        },
+        {
+            "source": "/api/indic-proxy",
+            "destination": "/api/indic-proxy.js"
+        },
+        {
+            "source": "/api/ultimate",
+            "destination": "/api/runpod-proxy.js"
+        }
+    ]
+}

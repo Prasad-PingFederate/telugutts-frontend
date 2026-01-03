@@ -1,0 +1,98 @@
+/* Voice Preview Zone */
+.voice-preview-zone {
+    margin: 60px 0;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+}
+
+.voice-preview-zone h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: var(--grad-main);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.voice-preview-zone>p {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.voice-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.preview-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.preview-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+.preview-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    filter: grayscale(20%);
+}
+
+.preview-card h3 {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.preview-lang {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.preview-btn {
+    background: var(--grad-main);
+    border: none;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+.preview-btn i {
+    font-size: 0.9rem;
+}
+
+.preview-btn.playing {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.preview-btn.playing i::before {
+    content: "\f04c";
+    /* Pause icon */
+}

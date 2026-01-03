@@ -1,0 +1,190 @@
+/* === ASYMMETRIC LAYOUT - WRITER-FOCUSED === */
+/* Prioritize source text input area for comfortable typing */
+
+/* Translation Grid - 60/40 Split */
+.translate-grid {
+    display: grid;
+    grid-template-columns: 1.5fr auto 1fr !important;
+    /* Source: 60%, Output: 40% */
+    gap: 20px !important;
+    align-items: start !important;
+}
+
+/* Source Pane - EXPANDED for comfortable long-form writing */
+.input-pane {
+    min-height: 420px !important;
+    /* Taller for more text visibility */
+}
+
+.input-pane textarea {
+    min-height: 340px !important;
+    /* Extra tall for comfortable typing */
+    font-size: 1.05rem !important;
+    /* Slightly larger for readability */
+    line-height: 1.75 !important;
+    /* Better line spacing */
+}
+
+/* Output Pane - COMPACT (just for reading results) */
+.output-pane {
+    min-height: 420px !important;
+    /* Match input height */
+}
+
+.output-pane textarea {
+    min-height: 220px !important;
+    /* Shorter - just for reading */
+    font-size: 1rem !important;
+}
+
+/* Voice Section - COMPACT (moves up to fill space) */
+.tts-section {
+    padding: 16px !important;
+    /* Reduced from 20px */
+    margin-top: 0 !important;
+    /* No gap */
+}
+
+.voice-pills-mini {
+    gap: 8px !important;
+    /* Tighter spacing */
+    margin: 8px 0 !important;
+}
+
+.v-pill {
+    padding: 8px 14px !important;
+    /* More compact */
+    font-size: 0.85rem !important;
+}
+
+/* Voice Controls - ULTRA COMPACT */
+.voice-controls-advanced {
+    grid-template-columns: 1.5fr 1fr 1fr !important;
+    /* Tighter */
+    gap: 12px !important;
+    padding: 16px !important;
+    margin: 12px 0 16px 0 !important;
+}
+
+.control-item-mini label {
+    font-size: 0.65rem !important;
+    margin-bottom: 6px !important;
+}
+
+.control-item-mini select {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+}
+
+.control-item-mini input[type="range"] {
+    height: 5px !important;
+}
+
+#speed-value {
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+}
+
+/* Speak Button - COMPACT */
+.btn-speak {
+    padding: 12px 24px !important;
+    font-size: 0.95rem !important;
+}
+
+/* Translate Button - Keep centered */
+.action-pane {
+    padding: 20px 12px !important;
+}
+
+.btn-translate-main {
+    width: 120px !important;
+    height: 120px !important;
+    font-size: 0.85rem !important;
+}
+
+/* Pane Headers - Consistent size */
+.pane-header {
+    padding: 12px 16px !important;
+}
+
+.pane-label {
+    font-size: 0.8rem !important;
+}
+
+/* Character count - Prominent in source */
+.char-count {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+}
+
+/* TTS Label - Smaller */
+.tts-label {
+    font-size: 0.7rem !important;
+    margin-bottom: 6px !important;
+}
+
+/* Copy Button - Compact */
+.btn-action {
+    padding: 10px 16px !important;
+    font-size: 0.9rem !important;
+}
+
+/* Responsive - Maintain writer focus */
+@media (max-width: 1024px) {
+    .translate-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .input-pane {
+        order: 1;
+    }
+
+    .action-pane {
+        order: 2;
+    }
+
+    .output-pane {
+        order: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .input-pane textarea {
+        min-height: 300px !important;
+    }
+
+    .output-pane textarea {
+        min-height: 200px !important;
+    }
+
+    .voice-controls-advanced {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Visual Hierarchy - Make source stand out */
+.input-pane {
+    border: 2px solid rgba(99, 102, 241, 0.15) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.input-pane:focus-within {
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.15) !important;
+}
+
+.output-pane {
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Pane Footer - Compact buttons */
+.pane-footer {
+    padding: 12px 16px !important;
+    gap: 10px !important;
+}
+
+.btn-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.9rem !important;
+}
