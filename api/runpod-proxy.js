@@ -1,6 +1,7 @@
 
 export const config = {
     runtime: 'edge',
+    maxDuration: 300, // 5 minutes max
 };
 
 export default async function handler(request) {
@@ -18,8 +19,8 @@ export default async function handler(request) {
 
         console.log(`Sending job to RunPod GPU Serverless: ${ENDPOINT_ID}`);
 
-        // Call RunPod Serverless API (Synchronous)
-        const response = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/runsync`, {
+        // Step 1: Submit job asynchronously (no timeout)
+        const submitResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/run`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -32,25 +33,49 @@ export default async function handler(request) {
             })
         });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`RunPod Serverless Error ${response.status}: ${errText}`);
+        if (!submitResponse.ok) {
+            const errText = await submitResponse.text();
+            throw new Error(`RunPod Submit Error ${submitResponse.status}: ${errText}`);
         }
 
-        const result = await response.json();
+        const submitResult = await submitResponse.json();
+        const jobId = submitResult.id;
 
-        // Handle result
-        if (result.status === 'COMPLETED') {
-            return new Response(JSON.stringify(result.output), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
+        console.log(`Job submitted: ${jobId}, polling for result...`);
+
+        // Step 2: Poll for result (max 4 minutes)
+        const maxAttempts = 120; // 120 * 2 seconds = 4 minutes
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+            const statusResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/status/${jobId}`, {
+                headers: {
+                    'Authorization': `Bearer ${RUNPOD_API_KEY}`
+                }
             });
-        } else {
-            return new Response(JSON.stringify({
-                error: 'RunPod Job not completed',
-                details: result
-            }), { status: 500 });
+
+            if (!statusResponse.ok) {
+                throw new Error(`Status check failed: ${statusResponse.status}`);
+            }
+
+            const statusResult = await statusResponse.json();
+            console.log(`Job ${jobId} status: ${statusResult.status}`);
+
+            if (statusResult.status === 'COMPLETED') {
+                return new Response(JSON.stringify(statusResult.output), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } else if (statusResult.status === 'FAILED') {
+                throw new Error(`Job failed: ${JSON.stringify(statusResult.error)}`);
+            }
+
+            attempts++;
         }
+
+        throw new Error('Job timed out after 4 minutes');
 
     } catch (error) {
         console.error('RunPod Serverless Proxy Error:', error);
