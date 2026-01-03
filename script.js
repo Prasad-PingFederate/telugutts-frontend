@@ -154,14 +154,27 @@ function updateVoiceSelection(radio) {
 
     // Toggle Cloning Studio
     const studio = document.getElementById('cloningStudio');
+    if (!studio) return;
+
     if (voice === 'ultimate') {
         studio.style.display = 'block';
-        setTimeout(() => studio.classList.add('visible'), 10); // Fade in if css supported
+        setTimeout(() => studio.classList.add('visible'), 10);
         logDebug('Ultimate Engine selected. Ready for cloning.', 'cmd');
     } else {
         studio.style.display = 'none';
+        studio.classList.remove('visible');
     }
 }
+
+// Bind Listeners Explicitly (Fixes HTML onchange issues)
+document.addEventListener('DOMContentLoaded', () => {
+    const radios = document.querySelectorAll('input[name="voice"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', (e) => updateVoiceSelection(e.target));
+        // Check initial state
+        if (radio.checked) updateVoiceSelection(radio);
+    });
+});
 
 // --- GENERATION LOGIC ---
 generateBtn.addEventListener('click', async () => {
