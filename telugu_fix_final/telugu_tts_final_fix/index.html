@@ -135,48 +135,6 @@
 
                 </div>
 
-                <!-- Voice Cloning Studio (Hidden by default, shows for Ultimate Voice) -->
-                <div id="cloningStudio" class="cloning-studio" style="display: none;">
-                    <div class="studio-header">
-                        <span class="studio-title">🧬 Voice Cloning Studio</span>
-                        <span class="studio-badge">PREMIUM</span>
-                    </div>
-
-                    <div class="studio-controls">
-                        <!-- Reference Audio Input -->
-                        <div class="control-group">
-                            <label class="control-label">1. Reference Voice (Audio)</label>
-                            <div class="file-upload-wrapper">
-                                <input type="file" id="refAudioInput" accept="audio/*" class="file-input">
-                                <label for="refAudioInput" class="file-label">
-                                    <span class="icon">📁</span>
-                                    <span id="fileName">Upload 5-10s Audio (WAV/MP3)</span>
-                                </label>
-                            </div>
-                            <small class="hint">Upload a clear voice sample to clone. If skipped, uses Default
-                                Female.</small>
-                        </div>
-
-                        <!-- Reference Text Input -->
-                        <div class="control-group">
-                            <label class="control-label">2. Reference Text (What is said in audio?)</label>
-                            <input type="text" id="refTextInput" class="studio-input"
-                                placeholder="E.g., Hello, how are you doing today?">
-                            <small class="hint">Helps the AI align the voice style. Leave empty if unknown.</small>
-                        </div>
-                    </div>
-
-                    <!-- Live Debug Terminal -->
-                    <div class="debug-terminal">
-                        <div class="terminal-header">
-                            <span class="icon">💻</span> Live Neural Engine Logs
-                        </div>
-                        <div id="debugLog" class="terminal-body">
-                            <div class="log-line text-gray">> Waiting for inputs...</div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Universal AI Translation Studio Link (Restored) -->
                 <a href="ai-translator-studio/index.html" class="universal-link-btn" style="text-decoration: none;">
                     <div class="universal-btn-content">
@@ -240,7 +198,7 @@
     </div> <!-- End container -->
     </div> <!-- End app-wrapper -->
 
-    <script src="script.js?v=cloning_studio_v3"></script>
+    <script src="script.js?v=premium"></script>
 </body>
 
 </html>

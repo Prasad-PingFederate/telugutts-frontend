@@ -1,0 +1,21 @@
+
+# Core Requirements
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+torch==2.1.2
+torchaudio==2.1.2
+transformers==4.36.2
+scipy==1.11.4
+soundfile==0.12.1
+numpy==1.26.3
+requests==2.31.0
+
+# AI4Bharat Specifics (Install via git usually, but listing dependencies here)
+librosa==0.10.1
+pydub==0.25.1
+mosestokenizer==1.2.1
+indic-nlp-library==0.91
+
+# Install IndicF5 directly (Add this to Dockerfile CMD or ensure it runs)
+# git+https://github.com/ai4bharat/IndicF5.git

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="te">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Cloning Demo - IndicF5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .mode-btn:hover {
+            background: #f0f4ff;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .voice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .voice-card {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .voice-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .voice-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .voice-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            background: #e0e7ff;
+            border-color: #4c51bf;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-family: 'Noto Sans Telugu', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .info-box {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎙️ Voice Cloning Demo</h1>
+        <p class="subtitle">Clone your voice and generate Telugu speech with IndicF5</p>
+
+        <!-- Mode Selection -->
+        <div class="section">
+            <div class="section-title">
+                <span>1️⃣</span>
+                <span>Choose Voice Mode</span>
+            </div>
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="library">
+                    📚 Use Voice Library
+                </button>
+                <button class="mode-btn" data-mode="custom">
+                    🎤 Clone My Voice
+                </button>
+            </div>
+        </div>
+
+        <!-- Voice Library Mode -->
+        <div class="section" id="library-mode">
+            <div class="section-title">
+                <span>2️⃣</span>
+                <span>Select a Voice</span>
+            </div>
+            <div class="voice-options">
+                <div class="voice-card" data-voice="male_1">
+                    <div class="voice-icon">👨</div>
+                    <div><strong>Male Voice 1</strong></div>
+                    <div style="font-size: 0.9em; color: #666;">Clear male voice</div>
+                </div>
+                <div class="voice-card" data-voice="female_1">
+                    <div class="voice-icon">👩</div>
+                    <div><strong>Female Voice 1</strong></div>
+                    <div style="font-size: 0.9em; color: #666;">Soft female voice</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Voice Mode -->
+        <div class="section hidden" id="custom-mode">
+            <div class="section-title">
+                <span>2️⃣</span>
+                <span>Upload Your Voice</span>
+            </div>
+
+            <div class="info-box">
+                <strong>📝 Tips for best results:</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Record 5-10 seconds of clear speech</li>
+                    <li>Speak naturally in any language</li>
+                    <li>Use a quiet environment (no background noise)</li>
+                </ul>
+            </div>
+
+            <div class="upload-area" id="upload-area">
+                <div style="font-size: 3em; margin-bottom: 10px;">🎤</div>
+                <div style="font-size: 1.1em; margin-bottom: 5px;">
+                    <strong>Click to upload or drag & drop</strong>
+                </div>
+                <div style="color: #666; font-size: 0.9em;">
+                    WAV or MP3 file (max 10MB)
+                </div>
+                <input type="file" id="audio-file" accept="audio/*">
+            </div>
+            <div class="file-info hidden" id="file-info"></div>
+
+            <div style="margin-top: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">
+                    What did you say in the recording?
+                </label>
+                <textarea id="reference-text" rows="2"
+                    placeholder="Type the exact words you spoke in the audio..."></textarea>
+            </div>
+        </div>
+
+        <!-- Text Input -->
+        <div class="section">
+            <div class="section-title">
+                <span>3️⃣</span>
+                <span>Enter Telugu Text</span>
+            </div>
+            <textarea id="telugu-text" rows="4"
+                placeholder="నమస్కారం! ఇక్కడ మీ తెలుగు టెక్స్ట్ టైప్ చేయండి..."></textarea>
+            <div style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                Character count: <span id="char-count">0</span> / 500
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="generate-btn" id="generate-btn">
+            🎯 Generate Speech
+        </button>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Generating your speech...</div>
+        </div>
+
+        <!-- Audio Player -->
+        <div class="audio-player hidden" id="audio-player">
+            <div style="font-size: 1.2em; margin-bottom: 15px; color: #667eea;">
+                ✅ Speech Generated Successfully!
+            </div>
+            <audio controls style="width: 100%;" id="audio-element">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        // API endpoint - update this with your actual API URL
+        const API_URL = 'http://localhost:8000';  // Change to your RunPod URL
+
+        // State
+        let currentMode = 'library';
+        let selectedVoice = null;
+        let uploadedAudio = null;
+
+        // Elements
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const libraryMode = document.getElementById('library-mode');
+        const customMode = document.getElementById('custom-mode');
+        const voiceCards = document.querySelectorAll('.voice-card');
+        const uploadArea = document.getElementById('upload-area');
+        const audioFileInput = document.getElementById('audio-file');
+        const fileInfo = document.getElementById('file-info');
+        const referenceText = document.getElementById('reference-text');
+        const teluguText = document.getElementById('telugu-text');
+        const charCount = document.getElementById('char-count');
+        const generateBtn = document.getElementById('generate-btn');
+        const loading = document.getElementById('loading');
+        const audioPlayer = document.getElementById('audio-player');
+        const audioElement = document.getElementById('audio-element');
+
+        // Mode switching
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                currentMode = btn.dataset.mode;
+
+                if (currentMode === 'library') {
+                    libraryMode.classList.remove('hidden');
+                    customMode.classList.add('hidden');
+                } else {
+                    libraryMode.classList.add('hidden');
+                    customMode.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Voice selection
+        voiceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                voiceCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedVoice = card.dataset.voice;
+            });
+        });
+
+        // File upload
+        uploadArea.addEventListener('click', () => audioFileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFileUpload(file);
+        });
+
+        audioFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFileUpload(file);
+        });
+
+        function handleFileUpload(file) {
+            if (!file) return;
+
+            if (!file.type.startsWith('audio/')) {
+                alert('Please upload an audio file');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+
+            uploadedAudio = file;
+            fileInfo.classList.remove('hidden');
+            fileInfo.innerHTML = `
+                <strong>✅ File uploaded:</strong> ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+            `;
+        }
+
+        // Character count
+        teluguText.addEventListener('input', () => {
+            const count = teluguText.value.length;
+            charCount.textContent = count;
+
+            if (count > 500) {
+                charCount.style.color = 'red';
+            } else {
+                charCount.style.color = '#666';
+            }
+        });
+
+        // Generate speech
+        generateBtn.addEventListener('click', async () => {
+            const text = teluguText.value.trim();
+
+            if (!text) {
+                alert('Please enter Telugu text');
+                return;
+            }
+
+            if (currentMode === 'library' && !selectedVoice) {
+                alert('Please select a voice from the library');
+                return;
+            }
+
+            if (currentMode === 'custom') {
+                if (!uploadedAudio) {
+                    alert('Please upload your voice audio');
+                    return;
+                }
+                if (!referenceText.value.trim()) {
+                    alert('Please enter what you said in the recording');
+                    return;
+                }
+            }
+
+            // Show loading
+            generateBtn.disabled = true;
+            loading.classList.add('active');
+            audioPlayer.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('text', text);
+
+                if (currentMode === 'library') {
+                    formData.append('voice_id', selectedVoice);
+                } else {
+                    formData.append('reference_audio', uploadedAudio);
+                    formData.append('reference_text', referenceText.value.trim());
+                }
+
+                const response = await fetch(`${API_URL}/generate`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate speech');
+                }
+
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                audioElement.src = audioUrl;
+                audioPlayer.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate speech. Please try again.');
+            } finally {
+                generateBtn.disabled = false;
+                loading.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>

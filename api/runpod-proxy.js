@@ -47,13 +47,15 @@ export default async function handler(request) {
         if (text) {
             console.log(`Submitting new job to RunPod GPU: ${ENDPOINT_ID}`);
 
+            // Pass the ENTIRE body as input (except jobId)
+            const inputPayload = { ...body };
+            delete inputPayload.jobId;
+
             const submitResponse = await fetch(`https://api.runpod.ai/v2/${ENDPOINT_ID}/run`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({
-                    input: {
-                        text: text
-                    }
+                    input: inputPayload
                 })
             });
 

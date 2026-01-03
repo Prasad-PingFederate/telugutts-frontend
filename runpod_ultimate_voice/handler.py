@@ -31,41 +31,43 @@ def handler(job):
     """
     global model
     
-    # 1. Get input
+    # Get input
     job_input = job["input"]
     text = job_input.get("text", "")
-    
+    ref_text = job_input.get("reference_text", "")
+    ref_audio_b64 = job_input.get("reference_audio", None)
+
     if not text:
         return {"error": "No text provided"}
 
-    # 2. Ensure model is loaded
+    # Ensure model is loaded
     try:
         model = load_model()
     except Exception as e:
         return {"error": f"Model load failed: {str(e)}"}
 
-    # 3. Generate
-    try:
-        # Real reference audio (Required by IndicF5)
-        ref_audio_path = "voices/default_telugu.wav"
+    # Handle Reference Audio
+    if ref_audio_b64:
+        try:
+            # Decode provided audio
+            ref_bytes = base64.b64decode(ref_audio_b64)
+            ref_audio_path = "temp_ref.wav"
+            with open(ref_audio_path, "wb") as f:
+                f.write(ref_bytes)
+            print("Using custom reference audio")
+        except Exception as e:
+            return {"error": f"Invalid reference audio: {str(e)}"}
+    else:
+        # Use default
+        ref_audio_path = "female_shruti.mp3"
+        print("Using default reference audio")
         if not os.path.exists(ref_audio_path):
-            os.makedirs("voices", exist_ok=True)
-            # URL to a sample Telugu audio file (e.g., from common voice or similar)
-            # Using a fallback to a synthesized sample if download fails would be ideal, 
-            # but for now let's try to get a real file or create a basic sine wave instead of silence if needed.
-            # Better approach: Use a known public sample. 
+            print("Downloading default audio...")
+            import requests # Lazy import
+            # Real Telugu sample would be better, but we need a valid path
+            # Let's try to generate one or assume it exists from previous steps
+            # Ideally, downloading the one form GitHub if missing
             try:
-                # Downloading a sample Telugu audio from a public source
-                import requests
-                # This is a sample Telugu audio URL. 
-                # If this fails, we will fallback to a generated tone which is better than silence.
-                sample_url = "https://github.com/Prasad-PingFederate/telugutts-frontend/raw/main/female_shruti.mp3" 
-                # Note: IndicF5 expects Wav usually, but soundfile might handle mp3 or we convert.
-                # Safest is to generate a non-silent wave if we can't ensure a download.
-                
-                response = requests.get(sample_url)
-                if response.status_code == 200:
-                    with open("voices/temp.mp3", 'wb') as f:
                         f.write(response.content)
                     # Convert to wav using soundfile/numpy if needed, or just let models handle it if supported.
                     # IndicF5 often uses librosa/soundfile. safely convert to wav.

@@ -1,0 +1,21 @@
+{
+    "name": "telugu-tts",
+    "version": "1.0.0",
+    "description": "Telugu Text-to-Speech Application",
+    "main": "index.html",
+    "scripts": {
+        "dev": "vercel dev",
+        "deploy": "vercel --prod"
+    },
+    "keywords": [
+        "telugu",
+        "tts",
+        "text-to-speech",
+        "ai"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@aws-sdk/client-polly": "^3.953.0"
+    }
+}

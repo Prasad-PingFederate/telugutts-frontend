@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="te">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telugu to Kannada Translator | AI Translation Studio</title>
+    <meta name="description"
+        content="Accurately translate Telugu text to Kannada online for free. Clean, fast, and professional translation tool.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Kannada:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+    <div id="app">
+        <header class="studio-header">
+            <div class="logo">
+                <span class="neon-text">TELUGU</span> <span class="white-text">KAN-TRANS</span>
+            </div>
+            <nav>
+                <a href="../index.html" class="nav-link"><i class="fas fa-home"></i> Back to Home</a>
+            </nav>
+        </header>
+
+        <main class="translator-container">
+            <div class="glass-card">
+                <div class="section-header">
+                    <h1>Telugu <span>⇌</span> Kannada</h1>
+                    <p>Powered by Advanced Neural Translation</p>
+                </div>
+
+                <div class="translate-grid">
+                    <div class="input-pane">
+                        <div class="pane-header">
+                            <label><i class="fas fa-pen-nib"></i> Telugu Text</label>
+                            <span class="char-count" id="te-char-count">0 / 5000</span>
+                        </div>
+                        <textarea id="te-input"
+                            placeholder="తెలుగులో ఇక్కడ టైప్ చేయండి... (Type Telugu here)"></textarea>
+                        <div class="pane-footer">
+                            <button id="clear-btn" class="btn-icon" title="Clear Text"><i
+                                    class="fas fa-trash-alt"></i></button>
+                            <button id="paste-btn" class="btn-icon" title="Paste Text"><i
+                                    class="fas fa-paste"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="action-pane">
+                        <button id="translate-btn" class="btn-translate">
+                            <span class="btn-text">Translate Now</span>
+                            <i class="fas fa-arrow-right"></i>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </div>
+
+                    <div class="output-pane">
+                        <div class="pane-header">
+                            <label><i class="fas fa-language"></i> Kannada Output</label>
+                        </div>
+                        <div class="output-wrapper">
+                            <textarea id="kn-output"
+                                placeholder="ಕನ್ನಡ ಅನುವಾದ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ... (Kannada translation will appear here)"
+                                readonly></textarea>
+                            <div id="loader" class="loader hide">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="pane-footer">
+                            <button id="copy-btn" class="btn-action" title="Copy Kannada Text"><i
+                                    class="fas fa-copy"></i> Copy</button>
+                            <button id="speak-btn" class="btn-action" title="Listen to Kannada"><i
+                                    class="fas fa-volume-up"></i> Listen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Info -->
+            <section class="quick-info">
+                <div class="info-card">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Instant</h4>
+                    <p>Real-time neural translation at lightning speed.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>Accurate</h4>
+                    <p>Maintains grammatical nuance between Telugu & Kannada.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Secure</h4>
+                    <p>Your data is processed securely and never stored.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="minimal-footer">
+            <p>&copy; 2026 TeluguTTS.com | Part of the B4I Studio Ecosystem</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -86,89 +86,34 @@ function hideStatus() {
     statusMessage.className = 'status-message';
 }
 
-// --- DEBUG TERMINAL HELPER ---
-function logDebug(message, type = 'info') {
-    const debugLog = document.getElementById('debugLog');
-    if (!debugLog) return;
-
-    const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" });
-    const div = document.createElement('div');
-    div.className = 'log-line';
-
-    let colorClass = 'log-info';
-    if (type === 'success') colorClass = 'log-success';
-    if (type === 'error') colorClass = 'log-error';
-    if (type === 'cmd') colorClass = 'log-cmd';
-
-    div.innerHTML = `<span class="log-time">[${time}]</span> <span class="${colorClass}">${message}</span>`;
-
-    debugLog.appendChild(div);
-    debugLog.scrollTop = debugLog.scrollHeight; // Auto scroll
-}
-
-// --- FILE UPLOAD HANDLING ---
-const refAudioInput = document.getElementById('refAudioInput');
-const fileNameLabel = document.getElementById('fileName');
-let refAudioBase64 = null;
-
-if (refAudioInput) {
-    refAudioInput.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file) {
-            fileNameLabel.textContent = "Upload 5-10s Audio (WAV/MP3)";
-            refAudioBase64 = null;
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            alert("File is too large! Please upload under 5MB.");
-            this.value = "";
-            return;
-        }
-
-        fileNameLabel.textContent = "✅ " + file.name;
-
-        // Convert to Base64
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            // Remove data:audio/xyz;base64, prefix
-            const result = e.target.result;
-            if (result.includes(',')) {
-                refAudioBase64 = result.split(',')[1];
-            } else {
-                refAudioBase64 = result;
-            }
-            logDebug(`Loaded reference audio: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`, 'success');
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// --- UI TOGGLING ---
+// Handle Voice Selection UI
 function updateVoiceSelection(radio) {
-    const voice = radio.value;
-
-    // Update visuals
-    document.querySelectorAll('.voice-pill').forEach(l => l.classList.remove('selected'));
-    radio.parentElement.classList.add('selected');
-
-    // Toggle Cloning Studio
-    const studio = document.getElementById('cloningStudio');
-    if (voice === 'ultimate') {
-        studio.style.display = 'block';
-        setTimeout(() => studio.classList.add('visible'), 10); // Fade in if css supported
-        logDebug('Ultimate Engine selected. Ready for cloning.', 'cmd');
-    } else {
-        studio.style.display = 'none';
-    }
+    // Remove selected from all
+    document.querySelectorAll('.voice-pill').forEach(opt => opt.classList.remove('selected'));
+    // Add to current
+    radio.closest('.voice-pill').classList.add('selected');
 }
 
-// --- GENERATION LOGIC ---
+// Generate speech
 generateBtn.addEventListener('click', async () => {
     const text = teluguText.value.trim();
-    const voiceInput = document.querySelector('input[name="voice"]:checked');
-    const selectedVoice = voiceInput ? voiceInput.value : 'female';
-    const refText = document.getElementById('refTextInput')?.value || "";
+    // Get selected voice
+    const selectedVoice = document.querySelector('input[name="voice"]:checked').value;
+
+    // Default endpoint
+    if (selectedVoice === 'azure_mohan' || selectedVoice === 'male') {
+        apiEndpoint = '/api/male';
+    } else if (selectedVoice === 'openai') {
+        apiEndpoint = '/api/aws-polly';
+    } else if (selectedVoice === 'ultimate') {
+        apiEndpoint = '/api/ultimate';
+    } else if (selectedVoice === 'indic_trans') {
+        // We will handle translation first, then use Male voice
+        apiEndpoint = '/api/male';
+    } else {
+        // Default to Female (Shruti) via Edge TTS
+        apiEndpoint = '/api/female';
+    }
 
     // Validation
     if (!text) {
@@ -179,168 +124,108 @@ generateBtn.addEventListener('click', async () => {
     // Reset UI
     audioPlayer.style.display = 'none';
     hideStatus();
+
+    // Show loading state
     generateBtn.classList.add('loading');
     generateBtn.disabled = true;
 
-    if (selectedVoice === 'ultimate') {
-        const debugLog = document.getElementById('debugLog');
-        if (debugLog) debugLog.innerHTML = '';
-    }
-
     try {
         let textToSpeak = text;
-        let audioData = null;
 
-        // --- TRANSLATION ---
+        // NEW: Handle Neural Translation
         if (selectedVoice === 'indic_trans') {
-            showStatus('🧠 Translating...', 'loading');
-            const transRes = await fetch('/api/indic-proxy', {
+            showStatus('🧠 AI Neural Translation in progress (IndicTrans2)...', 'loading');
+
+            const transResponse = await fetch('/api/indic-proxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text })
             });
-            const transData = await transRes.json();
+
+            const transData = await transResponse.json();
+
             if (transData.translated_text) {
                 textToSpeak = transData.translated_text;
+                // Update UI to show translation
                 teluguText.value = textToSpeak;
+                showStatus('✅ Translation Complete! Generating Audio...', 'loading');
+                // Give user a moment to see it
+                await new Promise(r => setTimeout(r, 500));
             } else {
-                throw new Error('Translation failed');
+                throw new Error('Translation failed: ' + (transData.error || 'Unknown error'));
             }
-        }
-
-        // --- ULTIMATE VOICE (CLONING - ASYNC) ---
-        if (selectedVoice === 'ultimate') {
-            logDebug(`Starting Job for: "${textToSpeak.substring(0, 20)}..."`, 'cmd');
-
-            const payload = {
-                text: textToSpeak,
-                reference_text: refText
-            };
-
-            if (refAudioBase64) {
-                payload.reference_audio = refAudioBase64;
-                logDebug('Attaching custom reference audio...', 'info');
-            } else {
-                logDebug('Using default reference voice (female_shruti)', 'info');
-            }
-
-            // 1. Submit
-            logDebug('Submitting to RunPod GPU Cloud...', 'info');
-            const submitRes = await fetch('/api/ultimate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!submitRes.ok) {
-                const err = await submitRes.text();
-                throw new Error('Submission Failed: ' + err);
-            }
-
-            const submitData = await submitRes.json();
-            const jobId = submitData.jobId;
-            logDebug(`Job Submitted! ID: ${jobId}`, 'success');
-
-            // 2. Poll
-            let attempts = 0;
-            const maxAttempts = 120; // 4 mins
-            let completed = false;
-
-            showStatus(`🚀 Processing Job: ${jobId}`, 'loading');
-
-            while (attempts < maxAttempts && !completed) {
-                attempts++;
-                await new Promise(r => setTimeout(r, 2000)); // 2s wait
-
-                const statusRes = await fetch('/api/ultimate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ jobId: jobId })
-                });
-
-                if (!statusRes.ok) {
-                    logDebug(`Network glitch checking status... retrying`, 'warning');
-                    continue;
-                }
-
-                const statusData = await statusRes.json();
-
-                if (statusData.status === 'COMPLETED') {
-                    completed = true;
-                    logDebug('Job Completed! Downloading Audio...', 'success');
-                    audioData = statusData.output.audio_base64;
-                } else if (statusData.status === 'FAILED') {
-                    logDebug(`Job FAILED: ${JSON.stringify(statusData.error)}`, 'error');
-                    throw new Error('RunPod Job Failed');
-                } else {
-                    const queueMsg = statusData.status === 'IN_QUEUE' ? ' (In Queue)' : '';
-                    if (attempts % 2 === 0) logDebug(`Status: ${statusData.status}${queueMsg} [${attempts * 2}s]`, 'info');
-                }
-            }
-
-            if (!completed) throw new Error('Timeout waiting for GPU');
-
+        } else if (selectedVoice === 'ultimate') {
+            showStatus('🚀 Cloning Voice via RunPod Ultimate Engine...', 'loading');
         } else {
-            // --- STANDARD VOICES (SYNC) ---
-            let endpoint = '/api/female';
-            if (selectedVoice === 'male') endpoint = '/api/male';
-            if (selectedVoice === 'openai') endpoint = '/api/aws-polly'; // Label says Polly
-
-            showStatus(`🔄 Generating audio...`, 'loading');
-
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: textToSpeak })
-            });
-
-            // Check for JSON
-            const contentType = res.headers.get("content-type");
-            let data;
-            if (contentType && contentType.includes("application/json")) {
-                data = await res.json();
-            } else {
-                const text = await res.text();
-                throw new Error(`Server Error (${res.status}): ${text.substring(0, 50)}`);
-            }
-
-            if (!res.ok) throw new Error(data.error || 'Generation Failed');
-            audioData = data.audio_base64;
+            showStatus(`🔄 Generating audio... This may take a few seconds`, 'loading');
         }
 
-        // --- PLAYBACK ---
-        if (!audioData) throw new Error('No audio returned');
+        // Call the API
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: textToSpeak }),
+        });
 
-        // Clean Base64
-        let base64String = audioData;
-        if (base64String.includes(',')) base64String = base64String.split(',')[1];
+        const data = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = data.details
+                ? `${data.error}: ${data.details}`
+                : (data.error || 'Failed to generate speech');
+            throw new Error(errorMessage);
+        }
+
+        // Check if we got audio data
+        if (!data.audio_base64) {
+            throw new Error('No audio data received');
+        }
+
+        // Convert base64 to blob
+        // Create Blob from base64
+        let base64String = data.audio_base64;
+
+        // Fix: Clean the base64 string
+        if (base64String.includes(',')) {
+            base64String = base64String.split(',')[1];
+        }
         base64String = base64String.replace(/\s/g, '');
 
-        // Decode Base64
-        const binaryString = window.atob(base64String);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
+        try {
+            const audioData = atob(base64String);
+            const audioArray = new Uint8Array(audioData.length);
+            for (let i = 0; i < audioData.length; i++) {
+                audioArray[i] = audioData.charCodeAt(i);
+            }
+            currentAudioBlob = new Blob([audioArray], { type: 'audio/mpeg' });
+        } catch (e) {
+            console.error('Base64 error:', e);
+            throw new Error('Failed to decode audio data from server.');
         }
-        currentAudioBlob = new Blob([bytes], { type: 'audio/mpeg' }); // IndicF5 returns wav/mp3 often
 
-        const url = URL.createObjectURL(currentAudioBlob);
-        audio.src = url;
+
+        // Create URL and play
+        const audioUrl = URL.createObjectURL(currentAudioBlob);
+        audio.src = audioUrl;
+
+        // Show success
+        showStatus('✅ ' + (data.message || 'Audio generated successfully!'), 'success');
         audioPlayer.style.display = 'block';
-        showStatus('✅ Speech Generated Successfully', 'success');
 
-        if (selectedVoice === 'ultimate') {
-            logDebug('Audio ready for playback.', 'success');
-        }
+        // Auto-play the audio
+        setTimeout(() => {
+            audio.play().catch(err => {
+                console.log('Auto-play prevented:', err);
+            });
+        }, 300);
 
-        setTimeout(() => audio.play().catch(e => console.log(e)), 500);
-
-    } catch (e) {
-        if (selectedVoice === 'ultimate') logDebug(`Critical Error: ${e.message}`, 'error');
-        showStatus(`❌ Error: ${e.message}`, 'error');
-        console.error(e);
+    } catch (error) {
+        console.error('Error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
     } finally {
+        // Reset button state
         generateBtn.classList.remove('loading');
         generateBtn.disabled = false;
     }

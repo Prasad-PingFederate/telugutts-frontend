@@ -112,135 +112,68 @@
                                     <span class="pill-icon">👨</span>
                                     <span class="pill-text">Male (Standard)</span>
                                 </label>
-                                <label class="voice-pill">
-                                    <input type="radio" name="voice" value="openai"
-                                        onchange="updateVoiceSelection(this)">
-                                    <span class="pill-text">Aditi (Polly/Neural)</span>
-                                </label>
-                                <label class="voice-pill" id="lblIndic">
-                                    <input type="radio" name="voice" value="indic_trans"
-                                        onchange="updateVoiceSelection(this)">
-                                    <span class="pill-icon">🧠</span>
-                                    <span class="pill-text">AI Translate (Neural)</span>
-                                </label>
-                                <label class="voice-pill" style="grid-column: span 2; border-color: #a855f7;">
-                                    <input type="radio" name="voice" value="ultimate"
-                                        onchange="updateVoiceSelection(this)">
-                                    <span class="pill-icon">🚀</span>
-                                    <span class="pill-text">Ultimate (RunPod Clone)</span>
-                                </label>
                             </div>
                         </div>
                     </div>
 
-                </div>
-
-                <!-- Voice Cloning Studio (Hidden by default, shows for Ultimate Voice) -->
-                <div id="cloningStudio" class="cloning-studio" style="display: none;">
-                    <div class="studio-header">
-                        <span class="studio-title">🧬 Voice Cloning Studio</span>
-                        <span class="studio-badge">PREMIUM</span>
-                    </div>
-
-                    <div class="studio-controls">
-                        <!-- Reference Audio Input -->
-                        <div class="control-group">
-                            <label class="control-label">1. Reference Voice (Audio)</label>
-                            <div class="file-upload-wrapper">
-                                <input type="file" id="refAudioInput" accept="audio/*" class="file-input">
-                                <label for="refAudioInput" class="file-label">
-                                    <span class="icon">📁</span>
-                                    <span id="fileName">Upload 5-10s Audio (WAV/MP3)</span>
-                                </label>
-                            </div>
-                            <small class="hint">Upload a clear voice sample to clone. If skipped, uses Default
-                                Female.</small>
-                        </div>
-
-                        <!-- Reference Text Input -->
-                        <div class="control-group">
-                            <label class="control-label">2. Reference Text (What is said in audio?)</label>
-                            <input type="text" id="refTextInput" class="studio-input"
-                                placeholder="E.g., Hello, how are you doing today?">
-                            <small class="hint">Helps the AI align the voice style. Leave empty if unknown.</small>
-                        </div>
-                    </div>
-
-                    <!-- Live Debug Terminal -->
-                    <div class="debug-terminal">
-                        <div class="terminal-header">
-                            <span class="icon">💻</span> Live Neural Engine Logs
-                        </div>
-                        <div id="debugLog" class="terminal-body">
-                            <div class="log-line text-gray">> Waiting for inputs...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Universal AI Translation Studio Link (Restored) -->
-                <a href="ai-translator-studio/index.html" class="universal-link-btn" style="text-decoration: none;">
-                    <div class="universal-btn-content">
-                        <span class="icon">🌐</span>
-                        <span>Universal AI Translation Studio (All Languages)</span>
-                    </div>
-                </a>
-
-                <button id="generateBtn" class="generate-btn">
-                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 4L14 10L6 16V4Z" fill="currentColor" />
-                    </svg>
-                    <span class="btn-text">Generate Speech</span>
-                    <div class="btn-loader"></div>
-                </button>
-
-                <div id="statusMessage" class="status-message"></div>
-
-                <div id="audioPlayer" class="audio-player" style="display: none;">
-                    <div class="audio-header">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3V21M9 6V18M15 6V18M6 9V15M18 9V15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
+                    <button id="generateBtn" class="generate-btn">
+                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 4L14 10L6 16V4Z" fill="currentColor" />
                         </svg>
-                        <span>Your Audio is Ready</span>
-                    </div>
-                    <audio id="audio" controls></audio>
-                    <button id="downloadBtn" class="download-btn">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Download Audio
+                        <span class="btn-text">Generate Speech</span>
+                        <div class="btn-loader"></div>
                     </button>
+
+                    <div id="statusMessage" class="status-message"></div>
+
+                    <div id="audioPlayer" class="audio-player" style="display: none;">
+                        <div class="audio-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3V21M9 6V18M15 6V18M6 9V15M18 9V15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span>Your Audio is Ready</span>
+                        </div>
+                        <audio id="audio" controls></audio>
+                        <button id="downloadBtn" class="download-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Download Audio
+                        </button>
+                    </div>
                 </div>
-        </div>
 
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">🎯</div>
-                <h3>High Quality</h3>
-                <p>Natural-sounding Telugu voice synthesis</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Fast Processing</h3>
-                <p>Generate audio in seconds</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h3>Secure</h3>
-                <p>Your text is processed securely</p>
-            </div>
-        </div>
-        </main>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>High Quality</h3>
+                        <p>Natural-sounding Telugu voice synthesis</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast Processing</h3>
+                        <p>Generate audio in seconds</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure</h3>
+                        <p>Your text is processed securely</p>
+                    </div>
+                </div>
+            </main>
 
-        <footer class="footer">
-            <p>© 2025 TeluguVoice AI • Crafted for Excellence</p>
-        </footer>
-    </div> <!-- End container -->
+            <footer class="footer">
+                <p>© 2025 TeluguVoice AI • Crafted for Excellence</p>
+            </footer>
+        </div> <!-- End container -->
     </div> <!-- End app-wrapper -->
 
-    <script src="script.js?v=cloning_studio_v3"></script>
+    <script src="script.js?v=premium"></script>
 </body>
 
 </html>

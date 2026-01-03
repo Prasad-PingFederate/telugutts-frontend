@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="te">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Telugu Translator & Voice Generator | AI Studio</title>
+    <meta name="description"
+        content="Convert English text to Telugu and generate natural AI voices instantly. Free English to Telugu translation and TTS tool.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+Telugu:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+    <div id="app">
+        <header class="studio-header">
+            <div class="logo">
+                <span class="neon-text">ENGLISH</span> <span class="white-text">TE-TRANS</span>
+            </div>
+            <nav>
+                <a href="../index.html" class="nav-link"><i class="fas fa-home"></i> Back to Home</a>
+            </nav>
+        </header>
+
+        <main class="translator-container">
+            <div class="glass-card">
+                <div class="section-header">
+                    <h1>English <span>⇌</span> Telugu</h1>
+                    <p>AI Translation + Natural Voice Synthesis</p>
+                </div>
+
+                <div class="translate-grid">
+                    <div class="input-pane">
+                        <div class="pane-header">
+                            <label><i class="fas fa-keyboard"></i> English Text</label>
+                            <span class="char-count" id="en-char-count">0 / 5000</span>
+                        </div>
+                        <textarea id="en-input" placeholder="Type or paste English text here..."></textarea>
+                        <div class="pane-footer">
+                            <button id="clear-btn" class="btn-icon" title="Clear Text"><i
+                                    class="fas fa-trash-alt"></i></button>
+                            <button id="paste-btn" class="btn-icon" title="Paste Text"><i
+                                    class="fas fa-paste"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="action-pane">
+                        <button id="translate-btn" class="btn-translate">
+                            <span class="btn-text">Translate</span>
+                            <i class="fas fa-arrow-right"></i>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </div>
+
+                    <div class="output-pane">
+                        <div class="pane-header">
+                            <label><i class="fas fa-language"></i> Telugu Translation</label>
+                        </div>
+                        <div class="output-wrapper">
+                            <textarea id="te-output"
+                                placeholder="తెలుగు అనుವಾదం ఇక్కడ కనిಪಿస్తుంది... (Telugu translation will appear here)"
+                                readonly></textarea>
+                            <div id="loader" class="loader hide">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="pane-footer">
+                            <button id="copy-btn" class="btn-action" title="Copy Telugu Text"><i
+                                    class="fas fa-copy"></i> Copy</button>
+                            <button id="generate-voice-btn" class="btn-action primary-action"
+                                title="Generate Telugu Voice">
+                                <i class="fas fa-microphone-alt"></i> Speak in Telugu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Selection for the generated Telugu -->
+                <div class="voice-selection-mini hide" id="voice-settings">
+                    <label>Select Telugu Voice:</label>
+                    <div class="voice-options">
+                        <label class="voice-opt">
+                            <input type="radio" name="te-voice" value="azure_mohan" checked>
+                            <span>👨 Mohan (Male)</span>
+                        </label>
+                        <label class="voice-opt">
+                            <input type="radio" name="te-voice" value="azure_shruti">
+                            <span>👩 Shruti (Female)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="audio-player-container" class="audio-container hide">
+                    <audio id="audio-player" controls></audio>
+                    <a id="download-link" class="btn-download"><i class="fas fa-download"></i> Download MP3</a>
+                </div>
+            </div>
+
+            <!-- Features Info -->
+            <section class="quick-info">
+                <div class="info-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Smart Translation</h4>
+                    <p>Precise English to Telugu neural translation.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-file-audio"></i>
+                    <h4>TTS Integrated</h4>
+                    <p>Directly convert translated text to professional Telugu audio.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-infinity"></i>
+                    <h4>Free Access</h4>
+                    <p>No limits on translation or voice generation.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="minimal-footer">
+            <p>&copy; 2026 TeluguTTS.com | AI Music & Language Studio</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
