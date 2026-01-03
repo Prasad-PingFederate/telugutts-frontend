@@ -30,7 +30,7 @@ export default async function handler(request) {
 
             if (!statusResponse.ok) {
                 const errText = await statusResponse.text();
-                throw new Error = {`RunPod Status Error ${statusResponse.status}: ${errText}`);
+                throw new Error(`RunPod Status Error ${statusResponse.status}: ${errText}`);
             }
 
             const statusResult = await statusResponse.json();
@@ -61,7 +61,7 @@ export default async function handler(request) {
 
             if (!submitResponse.ok) {
                 const errText = await submitResponse.text();
-                throw new Error = {`RunPod Submit Error ${submitResponse.status}: ${errText}`);
+                throw new Error(`RunPod Submit Error ${submitResponse.status}: ${errText}`);
             }
 
             const submitResult = await submitResponse.json();
