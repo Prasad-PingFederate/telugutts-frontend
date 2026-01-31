@@ -1,3 +1,4 @@
+❌ Error: Configuration Error: RUNPOD_API_KEY is not set in Vercel Environment Variables. Please go to Settings -> Environment Variables and add it.
 # 🚀 Final Deployment Steps
 
 You are almost there! We have fixed the `vercel.json` and the API code. Now you need to manually finish the deployment to connect everything.
